@@ -293,7 +293,7 @@ for (int i = 0; i < x; i++){
 }
 
 void draw_part_racket() {
-	printf("+");
+	printf("|");
 }
 
 void draw_ball() {

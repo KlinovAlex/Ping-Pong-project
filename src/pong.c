@@ -33,6 +33,7 @@
 # define RACKET_P2_MOVEMENT_UP -1
 # define RACKET_P2_MOVEMENT_DOWN 1
 
+#define clear() printf("\033[H\033[J")
 
 void game_end();
 void draw_pole(int player1_racket_x, int player1_racket_y, int player2_racket_x,
@@ -41,6 +42,7 @@ void draw_pole(int player1_racket_x, int player1_racket_y, int player2_racket_x,
 // Ball definitions
 int ball_position();
 void ball_move (int x, int y);
+// void ball_move (int x, int y, int ball_cur_pos_x, int ball_cur_pos_y);
 void checking_ball_racket_touching();
 void draw_ball();
 
@@ -49,20 +51,19 @@ int get_vertical_center_position();
 int player_turn(int ball_cur_pos_x);
 void get_move();
 
-// Map, draw definations 
+// Map, draw definations
 void map_generation(int x, int y);
 void clear_screen();
 void draw_part_racket();
 
 //Structure of ball
-int ball_cur_pos_x;
-int ball_cur_pos_y;
-int ball_direction_v;
-int ball_direction_h;
+int ball_cur_pos_x = 10;
+int ball_cur_pos_y = 10;
+int ball_direction_v = 1;
+int ball_direction_h = 1;
 
 //Structure of player 1
 int player1_offset = FIELD_WIDTH_START + INDENT;
-int player1_score ;
 int player1_racket_x;
 int player1_racket_y;
 int player1_pressed_key;
@@ -85,13 +86,29 @@ int player2_direction_h;
 int whos_turn = PLAYER_1_MOVE;
 
 int main() {
-	map_generation(FIELD_HEIGHT, FIELD_WIDTH+2);
+	// ball_cur_pos_x = player1_racket_x;
+	// ball_cur_pos_y = player1_racket_y+1;
+	map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+	ball_move(10, 10);
+	printf(" ball move; Ball x %d Ball y %d ball_direction_v %d \n", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
 	while (player1_score < PLAYER_MAX_SCORE || player2_score < PLAYER_MAX_SCORE){
+		// clear();
+		map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
 		// draw_pole (0, 0, 0, 0, 20, 20);
+		printf(" get_move(60); Ball x %d Ball y %d ball_direction_v %d \n", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
+
 		get_move(60);
+		printf("after get_move(60); Ball x %d Ball y %d ball_direction_v %d \n", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
+
+		ball_move(ball_cur_pos_x, ball_cur_pos_y);
+
+		printf(" ball move; Ball x %d Ball y %d ball_direction_v %d \n", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
+
+		printf("Ball x %d Ball y %d", ball_cur_pos_x, ball_cur_pos_y);
 		// printf("%d\n", player2_racket_y);
 		// printf("%d\n", player1_racket_y);
-    }
+
+    }	
 	game_end();
     return 0;
 }
@@ -108,36 +125,44 @@ void clear_screen() {
 
 
 void ball_move (int x, int y) {
-	// The function checks for going beyond the field boundaries and 
+	// The function checks for going beyond the field boundaries and
 	// changes the coordinates of the ball according to the move
+
 	ball_cur_pos_x = x;
 	ball_cur_pos_y = y;
+	printf("void ball_move  x %d y %d, Ball x %d Ball y %d ball_direction_v %d \n", x, y, ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
 
 	if (ball_direction_h == BALL_MOVEMENT_UP){
-		ball_cur_pos_y-=1;
+		ball_cur_pos_y+=BALL_MOVEMENT_UP;
 	}
 	if (ball_direction_h == BALL_MOVEMENT_DOWN){
-		ball_cur_pos_y+=1;
+		ball_cur_pos_y+=BALL_MOVEMENT_DOWN;
 	}
 	if (ball_direction_v == BALL_MOVEMENT_LEFT){
-		ball_cur_pos_x-=1;
+		ball_cur_pos_x+=BALL_MOVEMENT_LEFT;
 	}
 	if (ball_direction_v == BALL_MOVEMENT_RIGHT){
-		ball_cur_pos_x+=1;
+		ball_cur_pos_x+=BALL_MOVEMENT_RIGHT;
 	}
 
-	if (ball_cur_pos_x < FIELD_WIDTH_START) {
+	if (ball_cur_pos_x <= FIELD_WIDTH_START) {
 		ball_cur_pos_x = FIELD_WIDTH_START;
 	}
 	if (ball_cur_pos_x >= FIELD_WIDTH) {
 		ball_cur_pos_x = FIELD_WIDTH-1;
 	}
-	if (ball_cur_pos_y < FIELD_HEIGHT_START) {
-		ball_cur_pos_y = FIELD_HEIGHT_START;
+	if (ball_cur_pos_y <= FIELD_HEIGHT_START) {
+		ball_cur_pos_y += BALL_MOVEMENT_DOWN;
+		ball_direction_h = BALL_MOVEMENT_DOWN;
 	}
 	if (ball_cur_pos_y >= FIELD_HEIGHT) {
-		ball_cur_pos_y = FIELD_HEIGHT-1;
+		ball_cur_pos_y += BALL_MOVEMENT_UP;
+		ball_direction_h = BALL_MOVEMENT_UP;
+
 	}
+	printf("void ball_move  x %d y %d, Ball x %d Ball y %d ball_direction_v %d \n", x, y, ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
+
+
 }
 
 
@@ -149,21 +174,24 @@ void put_ball_position (int x, int y) {
 
 void checking_ball_racket_touching() {
 	// The function checks for touching rackets.
-	// When touched, changes the coordinates of the 
+	// When touched, changes the coordinates of the
 	// ball to the opposite.
-	if(ball_cur_pos_y == player1_racket_y 
-			&& (ball_cur_pos_x == player1_racket_x 
-			|| player1_racket_x+RACKET_SIZE-1
-			|| player1_racket_x+RACKET_SIZE) ) {
+
+	printf("checking_ball_racket_touching ->  ball_cur_pos_y %d , player1_racket_y %d", ball_cur_pos_y, player1_racket_y);
+	if(ball_cur_pos_y == player1_racket_y
+			&& (ball_cur_pos_x == player1_racket_x	
+			|| ball_cur_pos_x == player1_racket_x+RACKET_SIZE-1
+			|| ball_cur_pos_x == player1_racket_x+RACKET_SIZE) ) {
 		ball_direction_v = BALL_MOVEMENT_LEFT;
+
 		ball_direction_h = player1_direction_h;
 		whos_turn = PLAYER_2_MOVE;
 	}
 
-	if(ball_cur_pos_y == player2_racket_y 
-			&& (ball_cur_pos_x == player2_racket_x 
-			|| player2_racket_x+RACKET_SIZE-1
-			|| player2_racket_x+RACKET_SIZE) ) {
+	if(ball_cur_pos_y == player2_racket_y
+			&& (ball_cur_pos_x == player2_racket_x
+			|| ball_cur_pos_x == player2_racket_x+RACKET_SIZE-1
+			|| ball_cur_pos_x == player2_racket_x+RACKET_SIZE) ) {
 		ball_direction_v = BALL_MOVEMENT_LEFT;
 		ball_direction_h = player2_direction_h;
 		whos_turn = PLAYER_2_MOVE;
@@ -197,8 +225,8 @@ void get_move(){
 		if (key_pressed == KEY_P1_UP) {
 			player1_racket_y--;
 			player1_direction_v = RACKET_P1_MOVEMENT_UP;
-			if (player1_racket_y < 0) {
-				player1_racket_y=0;
+			if (player1_racket_y < FIELD_HEIGHT_START) {
+				player1_racket_y=FIELD_HEIGHT_START;
 			}
 		}
 		if (key_pressed == KEY_P1_DOWN) {
@@ -213,8 +241,8 @@ void get_move(){
 		if (key_pressed == KEY_P2_UP) {
 			player2_racket_y--;
 			player2_direction_v = RACKET_P2_MOVEMENT_UP;
-			if (player2_racket_y < 0) {
-				player2_racket_y=0;
+			if (player2_racket_y < FIELD_HEIGHT_START) {
+				player2_racket_y=FIELD_HEIGHT_START;
 			}
 		}
 		if (key_pressed == KEY_P2_DOWN) {
@@ -234,8 +262,7 @@ player1_racket_y = FIELD_HEIGHT/2-1;
 player2_racket_y = FIELD_HEIGHT/2-1;
 player1_racket_x = player1_offset;
 player2_racket_x = player2_offset;
-ball_cur_pos_x = player1_racket_x;
-ball_cur_pos_y = player1_racket_y+1;
+
 
 for (int i = 0; i < x; i++){
 	for (int n = 0; n < y; n++) {
@@ -244,33 +271,33 @@ for (int i = 0; i < x; i++){
 		} else {
 			if ((n == 0) || (n == y/2 -1)) {
 				printf("|");
-			} else { 
+			} else {
 				if (n == y-1){
 					printf("|");
 				} else {
 					// Drawing first player racket
-					if(n == player1_racket_x && i == player1_racket_y){
+					if(n == player1_racket_x && i == player1_racket_y + INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
-					if(n == player1_racket_x && i == player1_racket_y + RACKET_SIZE - 1){
+					if(n == player1_racket_x && i == player1_racket_y + RACKET_SIZE - 1 + INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
-					if(n == player1_racket_x && i == player2_racket_y + RACKET_SIZE){
+					if(n == player1_racket_x && i == player2_racket_y + RACKET_SIZE  + INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
 					// Drawing second player racket
-					if(n == player2_racket_x && i == player2_racket_y){
+					if(n == player2_racket_x && i == player2_racket_y - INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
-					if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE - 1){
+					if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE - 1 - INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
-					if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE){
+					if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE - INDENT){
 						draw_part_racket();
 						draw_racket = 1;
 					}
@@ -299,4 +326,3 @@ void draw_part_racket() {
 void draw_ball() {
 	printf("o");
 }
-

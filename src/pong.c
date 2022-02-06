@@ -72,8 +72,8 @@ int player1_racket_x;
 int player1_racket_y;
 int player1_pressed_key;
 int player1_score;
-int player1_direction_v;
-int player1_direction_h;
+int player1_direction_v = BALL_MOVEMENT_UP;
+int player1_direction_h = BALL_MOVEMENT_LEFT;
 
 
 //Structure of player 2
@@ -83,8 +83,8 @@ int player2_racket_x;
 int player2_racket_y;
 int player2_pressed_key;
 int player2_score;
-int player2_direction_v;
-int player2_direction_h;
+int player2_direction_v = BALL_MOVEMENT_DOWN;
+int player2_direction_h = BALL_MOVEMENT_RIGHT;
 
 
 int whos_turn = PLAYER_1_MOVE;
@@ -144,45 +144,47 @@ int ball_move (int x, int y) {
 	ball_cur_pos_y = y;
 	// printf("void ball_move  x %d y %d, Ball x %d Ball y %d ball_direction_v %d \n", x, y, ball_cur_pos_x, ball_cur_pos_y, ball_direction_v);
 
-	if (ball_direction_h == BALL_MOVEMENT_UP){
+	if (ball_direction_v == BALL_MOVEMENT_UP){
 		ball_cur_pos_y+=BALL_MOVEMENT_UP;
 	}
-	if (ball_direction_h == BALL_MOVEMENT_DOWN){
+	if (ball_direction_v == BALL_MOVEMENT_DOWN){
 		ball_cur_pos_y+=BALL_MOVEMENT_DOWN;
 	}
-	if (ball_direction_v == BALL_MOVEMENT_LEFT){
+	if (ball_direction_h == BALL_MOVEMENT_LEFT){
 		ball_cur_pos_x+=BALL_MOVEMENT_LEFT;
 	}
-	if (ball_direction_v == BALL_MOVEMENT_RIGHT){
+	if (ball_direction_h == BALL_MOVEMENT_RIGHT){
 		ball_cur_pos_x+=BALL_MOVEMENT_RIGHT;
 	}
 
-	if (ball_cur_pos_x <= FIELD_WIDTH_START) {
+	if (ball_cur_pos_x < FIELD_WIDTH_START) {
 		player2_score +=1;
 		whos_turn = PLAYER_1_MOVE;
-		ball_direction_v = BALL_MOVEMENT_RIGHT;
+		ball_direction_h = BALL_MOVEMENT_RIGHT;
+		ball_direction_v = BALL_MOVEMENT_DOWN;
 		return PLAYER_1_MOVE;
 	}
-	if (ball_cur_pos_x >= FIELD_WIDTH) {
+	if (ball_cur_pos_x > FIELD_WIDTH) {
 		player1_score +=1;
 		whos_turn = PLAYER_2_MOVE;
-		ball_direction_v = BALL_MOVEMENT_LEFT;
-		ball_direction_v = BALL_MOVEMENT_LEFT;
+		ball_direction_h = BALL_MOVEMENT_LEFT;
+		ball_direction_v = BALL_MOVEMENT_UP;
 		return PLAYER_2_MOVE;
 	}
-	if (ball_cur_pos_y <= FIELD_HEIGHT_START) {
+	if (ball_cur_pos_y < FIELD_HEIGHT_START) {
+		ball_cur_pos_y = FIELD_HEIGHT_START;
 		ball_cur_pos_y += BALL_MOVEMENT_DOWN;
-		ball_direction_h = BALL_MOVEMENT_DOWN;
+		ball_direction_v = BALL_MOVEMENT_DOWN;
 	}
 	if (ball_cur_pos_y > FIELD_HEIGHT) {
 		ball_cur_pos_y = FIELD_HEIGHT;
 		ball_cur_pos_y += BALL_MOVEMENT_UP;
 		printf("ball_cur_pos_y + BALL_MOVEMENT_UP %d", ball_cur_pos_y + BALL_MOVEMENT_UP);
-		ball_direction_h = BALL_MOVEMENT_UP;
-
+		ball_direction_v = BALL_MOVEMENT_UP;
+		
 	}
 	player_turn(ball_cur_pos_x);
-	// printf("void ball_move end x %d y %d, Ball x %d Ball y %d ball_direction_v %d player1_score %d player2_score %d player2_racket_x %d player2_racket_y %d", x, y, ball_cur_pos_x, ball_cur_pos_y, ball_direction_v, player1_score, player2_score, player2_racket_x, player2_racket_y) ;
+	printf("void ball_move end x %d y %d, Ball x %d Ball y %d ball_direction_v %d player1_score %d player2_score %d player2_racket_x %d player2_racket_y %d", x, y, ball_cur_pos_x, ball_cur_pos_y, ball_direction_v, player1_score, player2_score, player2_racket_x, player2_racket_y) ;
 	return 0;
 }
 
@@ -214,24 +216,23 @@ void checking_ball_racket_touching() {
 	// ball to the opposite.
 
 	printf("void checking_ball_racket_touching  P1  Ball x %d Ball y %d ball_direction_v %d player1_racket_x %d player1_racket_y %d player2_racket_x %d player2_racket_y %d", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v, player1_racket_x, player1_racket_y, player2_racket_x, player2_racket_y);
-	if(ball_cur_pos_x == player1_racket_x
+	if(player1_racket_x == ball_cur_pos_x-1
 			&& (ball_cur_pos_y == player1_racket_y	
 			|| ball_cur_pos_y == player1_racket_y+RACKET_SIZE-1
 			|| ball_cur_pos_y == player1_racket_y+RACKET_SIZE) ) {
-		ball_direction_v = BALL_MOVEMENT_LEFT;
+		ball_direction_h = BALL_MOVEMENT_RIGHT;
+		ball_direction_v = player1_direction_v;
 		printf("void checking_ball_racket_touching  P1  Ball x %d Ball y %d ball_direction_v %d player1_score %d player2_score %d player1_racket_x %d player1_racket_y %d", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v, player1_score, player2_score, player1_racket_x, player1_racket_y);
-
-		ball_direction_h = player1_direction_h;
 		whos_turn = PLAYER_2_MOVE;
 	}
 
-	if(ball_cur_pos_x == player2_racket_x
+	if(player2_racket_x == ball_cur_pos_x+1 
 			&& (ball_cur_pos_y == player2_racket_y
 			|| ball_cur_pos_y == player2_racket_y+RACKET_SIZE-1
 			|| ball_cur_pos_y == player2_racket_y+RACKET_SIZE) ) {
 		printf("checking_ball_racket_touching P2 Ball x %d Ball y %d ball_direction_v %d player1_score %d player2_score %d player2_racket_x %d player2_racket_y %d", ball_cur_pos_x, ball_cur_pos_y, ball_direction_v, player1_score, player2_score, player2_racket_x, player2_racket_y) ;
-		ball_direction_v = BALL_MOVEMENT_LEFT;
-		ball_direction_h = player2_direction_h;
+		ball_direction_h = BALL_MOVEMENT_LEFT;
+		ball_direction_v = player2_direction_v;
 		whos_turn = PLAYER_1_MOVE;
 	}
 }

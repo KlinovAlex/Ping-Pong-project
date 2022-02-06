@@ -264,50 +264,31 @@ player1_racket_x = player1_offset;
 player2_racket_x = player2_offset;
 
 
-for (int i = 0; i < x; i++) {
-	for (int n = 0; n < y; n++) {
-        if ((n == 0) || (n == FIELD_WIDTH)) {
-            else if (n == player1_racket_x && i == player1_racket_y + INDENT) { // Drawing first player racket
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == player1_racket_x && i == player1_racket_y + RACKET_SIZE - 1 + INDENT) {
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == player1_racket_x && i == player2_racket_y + RACKET_SIZE  + INDENT) {
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == player2_racket_x && i == player2_racket_y - INDENT) { // Drawing second player racket
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE - 1 - INDENT) {
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == player2_racket_x && i == player2_racket_y + RACKET_SIZE - INDENT) {
-			    draw_part_racket();
-			    draw_racket = 1;
-            } else if(n == ball_cur_pos_x && i == ball_cur_pos_y) { // Drawing ball
-			    draw_ball();
-			    draw_racket = 1;
-			    n++;
-            } else if (draw_racket == 0) {
-			    printf (" ");
-                draw_racket = 0;
-            } else if ((i == 1) && (n == 39)) { // Drawing score
-                    printf("0");
-            } else if ((i == 1) && (n == 42)) {
-                    printf("0");
-            } else if ((i == 0) || (i == x-1)) { // Drawing field
-			        printf("-");
-            } else if ((n == 0) || (n == y/2)) {
-			        printf("|");
-            } else if (n == y-1) {
-				    printf("|");
-            }
-        }
+for (int i = 0; i < FIELD_HEIGHT; i++) {
+	for (int j = 0; j < FIELD_WIDTH; j++) {
+       if (j == 0 || j == FIELD_WIDTH - 1 || j == 38)
+       printf("|");
+       else if (j == 0 || i == FIELD_HEIGHT - 1)
+       printf("-");
+       else if (j == 0 || i == FIELD_HEIGHT_START)
+       printf("-");
+       else if (j == 1 && (i == player1_racket_y || i == player1_racket_y + 1 || i == player1_racket_y + 2))
+       printf("|");
+       else if (j == FIELD_WIDTH - 2 && (i == player2_racket_y || i == player2_racket_y + 1 || i == player2_racket_y + 2))
+       printf("|");
+       else if (j == ball_cur_pos_x && i == ball_cur_pos_y)
+       printf("o");
+       else if ((j == 37) && (i == 1))
+       printf("0");
+       else if ((j == 39) && (i == 1))
+       printf("0");
+       else
+       printf(" ");
     }
-    printf ("\n");
+ printf ("\n");
+}   
 }
-}
+
 
 void draw_part_racket() {
 	printf("|");

@@ -177,7 +177,6 @@ int ball_move(int x, int y) {
     if (ball_cur_pos_y > FIELD_HEIGHT) {
         ball_cur_pos_y = FIELD_HEIGHT;
         ball_cur_pos_y += BALL_MOVEMENT_UP;
-        printf("ball_cur_pos_y + BALL_MOVEMENT_UP %d", ball_cur_pos_y + BALL_MOVEMENT_UP);
         ball_direction_v = BALL_MOVEMENT_UP;
     }
     player_turn(ball_cur_pos_x);

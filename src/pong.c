@@ -54,6 +54,7 @@ int player_turn(int ball_cur_pos_x);
 void get_move();
 
 // Map, draw definations
+void map();
 void map_generation(int x, int y);
 void clear_screen();
 void draw_part_racket();
@@ -76,7 +77,7 @@ int player1_direction_h;
 
 
 //Structure of player 2
-int player2_offset = FIELD_WIDTH - INDENT - 1;
+int player2_offset = FIELD_WIDTH - INDENT;
 int player2_score ;
 int player2_racket_x;
 int player2_racket_y;
@@ -96,21 +97,25 @@ int main() {
 	player1_racket_x = player1_offset;
 	player2_racket_x = player2_offset;
 	int ball_status;
-	map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+	// map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+	map();
 	ball_move(0, 0);
 	while (player1_score < PLAYER_MAX_SCORE || player2_score < PLAYER_MAX_SCORE){
 		// clear();
-		map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+		// map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+		map();
 		get_move(60);
 
 		ball_status = ball_move(ball_cur_pos_x, ball_cur_pos_y);
 
 		if (ball_status == PLAYER_2_MOVE) {
-			map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+			// map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+			map();
 			ball_move(FIELD_WIDTH-20, 21-player2_score);
 		}
 		if (ball_status == PLAYER_1_MOVE) {
-			map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+			// map_generation(FIELD_HEIGHT+2, FIELD_WIDTH+2);
+			map();
 			ball_move(FIELD_WIDTH_START+20, 21-player1_score);
 
 		}
@@ -292,9 +297,62 @@ void get_move(){
 	checking_ball_racket_touching();
 }
 
+
+void map(){
+	int special_char = 0;
+		for (int map_y=FIELD_HEIGHT_START; map_y<=FIELD_HEIGHT; map_y++){
+			for (int map_x = FIELD_WIDTH_START; map_x<=FIELD_WIDTH; map_x++){
+			special_char = 0;
+			if (ball_cur_pos_x == map_x && ball_cur_pos_y == map_y){
+				draw_ball();
+				special_char = 1;
+			}
+			if (player1_racket_x == map_x && player1_racket_y == map_y) {
+				draw_part_racket();
+				special_char = 1;
+			}
+			if (player1_racket_x == map_x && player1_racket_y + RACKET_SIZE - 1 == map_y) {
+				draw_part_racket();
+				special_char = 1;
+
+			}
+			if (player1_racket_x == map_x && player1_racket_y + RACKET_SIZE == map_y) {
+				draw_part_racket();
+				special_char = 1;
+
+			}
+			if (player2_racket_x == map_x && player2_racket_y == map_y) {
+				draw_part_racket();
+				special_char = 1;
+
+			}
+			if (player2_racket_x == map_x && player2_racket_y + RACKET_SIZE - 1 == map_y) {
+				draw_part_racket();
+				special_char = 1;
+			}
+			if (player2_racket_x == map_x && player2_racket_y + RACKET_SIZE == map_y) {
+				draw_part_racket();
+				special_char = 1;
+			}
+
+			if (map_x == FIELD_WIDTH/2 ) {
+				draw_part_racket();
+				special_char = 1;
+			}
+			
+			if (special_char == 0) {
+				if(map_x == FIELD_WIDTH ) {
+					printf("%s\n", " ");				
+				} else {
+					printf("%s", " ");				
+				}
+			}
+		}
+	}
+}
+
 void map_generation(int x, int y){
 int draw_racket = 0;
-
 for (int i = 0; i < x; i++){
 	for (int n = 0; n < y; n++) {
 		if ((i == 0) || (i == x-1)) {
